@@ -825,18 +825,87 @@
         function animateDataStats() {
             const stats = document.querySelectorAll('.bg-blue-50, .bg-green-50, .bg-purple-50, .bg-yellow-50');
             
-            stats.forEach(stat => {
-                sr.reveal(stat, { 
-                    interval: 200,
-                    distance: '20px',
-                    origin: 'bottom',
-                    delay: 200
+            // Check if sr exists before using it
+            if (typeof sr !== 'undefined' && sr) {
+                stats.forEach(stat => {
+                    sr.reveal(stat, { 
+                        interval: 200,
+                        distance: '20px',
+                        origin: 'bottom',
+                        delay: 200
+                    });
                 });
-            });
+            } else {
+                console.log('ScrollReveal not available, using fallback animation');
+                // Simple fallback animation
+                stats.forEach((stat, index) => {
+                    stat.style.opacity = '0';
+                    stat.style.transform = 'translateY(20px)';
+                    
+                    setTimeout(() => {
+                        stat.style.transition = 'opacity 0.5s, transform 0.5s';
+                        stat.style.opacity = '1';
+                        stat.style.transform = 'translateY(0)';
+                    }, 200 + (index * 200));
+                });
+            }
         }
     </script>
 </head>
 <body class="bg-gray-50 antialiased">
+    <!-- Fix Script for redirecting placeholder URLs -->
+    <script>
+        // Override fetch to handle placeholder URLs
+        const originalFetch = window.fetch;
+        window.fetch = function(url, options) {
+            if (typeof url === 'string' && url.includes('replace-with-your-azure-function-url')) {
+                console.log('Intercepted request to placeholder URL, redirecting to actual endpoint');
+                url = url.replace('replace-with-your-azure-function-url', 'https://brave-desert-0030a4410.6.azurestaticapps.net/api/waitlist-signup');
+            }
+            return originalFetch(url, options);
+        };
+        
+        // Grab any form submit events that might be using the placeholder
+        document.addEventListener('submit', function(e) {
+            const form = e.target;
+            if (form.action && form.action.includes('replace-with-your-azure-function-url')) {
+                e.preventDefault();
+                console.log('Intercepted form submission to placeholder URL');
+                
+                // Get form data
+                const formData = new FormData(form);
+                const data = {};
+                for (let pair of formData.entries()) {
+                    data[pair[0]] = pair[1];
+                }
+                
+                // Submit to the correct endpoint
+                fetch('https://brave-desert-0030a4410.6.azurestaticapps.net/api/waitlist-signup', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Handle success - find and show success message
+                    const formSuccess = document.getElementById('formSuccess');
+                    if (formSuccess) {
+                        form.style.display = 'none';
+                        formSuccess.classList.remove('hidden');
+                        formSuccess.scrollIntoView({ behavior: 'smooth' });
+                    } else {
+                        alert('Thank you for signing up! We will be in touch soon.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('There was an error submitting the form. Please try again.');
+                });
+            }
+        }, true);
+    </script>
     <!-- Sticky Navigation -->
     <nav class="fixed w-full header-bg z-50 top-0 transition-all duration-300">
         <div class="container mx-auto px-6 py-3 flex justify-between items-center">
