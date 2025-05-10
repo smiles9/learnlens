@@ -545,13 +545,19 @@
                         body: JSON.stringify(formData)
                     })
                     .then(response => {
+                        console.log('Response status:', response.status);
                         if (response.ok) {
                             return response.json();
                         } else {
-                            throw new Error('Form submission failed');
+                            // Try to get the error message from the response
+                            return response.text().then(text => {
+                                console.error('Error response:', text);
+                                throw new Error('Form submission failed with status: ' + response.status);
+                            });
                         }
                     })
                     .then(data => {
+                        console.log('Success response:', data);
                         // Hide form and show success message
                         waitlistForm.style.display = 'none';
                         formSuccess.classList.remove('hidden');
@@ -563,13 +569,13 @@
                         waitlistForm.reset();
                     })
                     .catch(error => {
-                        console.error('Error:', error);
+                        console.error('Error details:', error);
                         // Reset button
                         submitButton.innerHTML = originalButtonText;
                         submitButton.disabled = false;
                         
                         // Show error message
-                        alert('There was an error submitting the form. Please try again.');
+                        alert('There was an error submitting the form: ' + error.message);
                     });
                 });
             }
