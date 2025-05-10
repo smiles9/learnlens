@@ -1,0 +1,1757 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LearnLens | Understand What Your Child is Learning Online</title>
+    <meta name="description" content="LearnLens uses AI to analyze your child's online activities and provide meaningful insights about what they're actually learning and exploring.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/scrollreveal@4.0.9/dist/scrollreveal.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            color: #333;
+            line-height: 1.6;
+            scroll-behavior: smooth;
+        }
+        .gradient-bg {
+            background: linear-gradient(135deg, #4D62E5 0%, #87BBFD 100%);
+        }
+        .gradient-text {
+            background: linear-gradient(90deg, #4D62E5, #87BBFD);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .feature-card {
+            transition: all 0.3s ease;
+            border-radius: 16px;
+            overflow: hidden;
+        }
+        .feature-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+        }
+        .btn-primary {
+            background: linear-gradient(90deg, #4D62E5 0%, #87BBFD 100%);
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(77, 98, 229, 0.3);
+        }
+        .btn-primary:hover {
+            box-shadow: 0 8px 20px rgba(77, 98, 229, 0.5);
+            transform: translateY(-2px);
+            opacity: 0.95;
+        }
+        .btn-secondary {
+            transition: all 0.3s ease;
+        }
+        .btn-secondary:hover {
+            opacity: 0.9;
+            text-decoration: underline;
+        }
+        .hero-visual-enhanced {
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.97), rgba(248, 250, 255, 0.97));
+            border-radius: 24px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2), 0 0 0 1px rgba(77, 98, 229, 0.05);
+            max-width: 450px;
+            width: 90%;
+            text-align: left;
+            transition: all 0.5s ease;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .hero-visual-enhanced:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 25px 50px rgba(0,0,0,0.25), 0 0 0 1px rgba(77, 98, 229, 0.1);
+        }
+        .visual-header {
+            font-weight: 700;
+            color: #2d3748;
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+            border-bottom: 2px solid rgba(77, 98, 229, 0.2);
+            padding-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+        .visual-header i {
+            background: linear-gradient(135deg, #4D62E5, #87BBFD);
+            color: white;
+            padding: 10px;
+            border-radius: 12px;
+            margin-right: 12px;
+            box-shadow: 0 4px 8px rgba(77, 98, 229, 0.2);
+        }
+        .visual-ai-summary {
+            background-color: rgba(247, 250, 252, 0.7);
+            border-left: 4px solid #4D62E5;
+            padding: 18px;
+            border-radius: 12px;
+            margin-bottom: 18px;
+            font-size: 1rem;
+            color: #2d3748;
+            line-height: 1.5;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.03);
+        }
+        .visual-ai-summary:hover {
+            background-color: #edf2f7;
+            transform: translateX(5px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.05);
+        }
+        
+        .insight-card {
+            border-radius: 12px;
+            padding: 14px;
+            margin-bottom: 12px;
+            transition: all 0.25s ease;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        .insight-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
+        }
+        .insight-card:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            transition: all 0.3s ease;
+        }
+        .insight-card.interest:before {
+            background: linear-gradient(to bottom, #4D62E5, #6e82e8);
+        }
+        .insight-card.creative:before {
+            background: linear-gradient(to bottom, #8558ed, #a57af1);
+        }
+        .insight-card.learning:before {
+            background: linear-gradient(to bottom, #10B981, #34D399);
+        }
+        .insight-badge {
+            display: inline-flex;
+            align-items: center;
+            font-weight: 600;
+            margin-bottom: 5px;
+            border-radius: 6px;
+            padding: 2px 8px 2px 2px;
+            font-size: 0.85rem;
+        }
+        .insight-badge i {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
+            margin-right: 6px;
+        }
+        .interest-badge {
+            color: #4D62E5;
+            background-color: rgba(77, 98, 229, 0.08);
+        }
+        .interest-badge i {
+            background-color: rgba(77, 98, 229, 0.15);
+            color: #4D62E5;
+        }
+        .creative-badge {
+            color: #8558ed;
+            background-color: rgba(133, 88, 237, 0.08);
+        }
+        .creative-badge i {
+            background-color: rgba(133, 88, 237, 0.15);
+            color: #8558ed;
+        }
+        .learning-badge {
+            color: #10B981;
+            background-color: rgba(16, 185, 129, 0.08);
+        }
+        .learning-badge i {
+            background-color: rgba(16, 185, 129, 0.15);
+            color: #10B981;
+        }
+        .insight-content {
+            margin-left: 4px;
+        }
+        
+        .user-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 10px;
+            background: linear-gradient(to right, rgba(77, 98, 229, 0.1), rgba(77, 98, 229, 0.03));
+            border-radius: 12px;
+            margin-bottom: 15px;
+            border: 1px solid rgba(77, 98, 229, 0.1);
+        }
+        .user-badge .avatar {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #4D62E5, #87BBFD);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.9rem;
+            margin-right: 8px;
+            box-shadow: 0 2px 4px rgba(77, 98, 229, 0.3);
+        }
+        .user-badge .details {
+            display: flex;
+            flex-direction: column;
+        }
+        .user-badge .name {
+            font-weight: 600;
+            color: #2d3748;
+            font-size: 0.9rem;
+            line-height: 1;
+            margin-bottom: 2px;
+        }
+        .user-badge .age {
+            font-size: 0.75rem;
+            color: #4a5568;
+            line-height: 1;
+        }
+        .status-tag {
+            background: linear-gradient(135deg, #10B981, #059669);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 8px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(16, 185, 129, 0.3);
+        }
+        .status-tag i {
+            font-size: 0.65rem;
+            margin-right: 3px;
+        }
+        
+        .quote-card {
+            background: linear-gradient(135deg, rgba(251, 191, 36, 0.08), rgba(251, 191, 36, 0.03));
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 16px;
+            border-left: 4px solid #F59E0B;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.03);
+            transform-origin: center;
+            transition: all 0.3s ease;
+        }
+        .quote-card:hover {
+            transform: scale(1.03);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
+        }
+        .quote-content {
+            position: relative;
+            padding-left: 20px;
+        }
+        .quote-content:before {
+            content: "\201C";
+            position: absolute;
+            left: 0;
+            top: -5px;
+            font-size: 28px;
+            color: #F59E0B;
+            font-family: Georgia, serif;
+            line-height: 1;
+        }
+        
+        .update-indicator {
+            display: flex;
+            align-items: center;
+            padding: 8px 12px;
+            background-color: rgba(77, 98, 229, 0.05);
+            border-radius: 8px;
+            font-size: 0.8rem;
+            color: #4a5568;
+            border: 1px dashed rgba(77, 98, 229, 0.2);
+        }
+        .update-indicator i {
+            color: #4D62E5;
+            margin-right: 6px;
+        }
+        
+        .cta-link {
+            display: inline-flex;
+            align-items: center;
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: #4D62E5;
+            padding: 6px 12px;
+            border-radius: 8px;
+            transition: all 0.25s ease;
+            background-color: rgba(77, 98, 229, 0.08);
+        }
+        .cta-link:hover {
+            background-color: rgba(77, 98, 229, 0.15);
+            text-decoration: none;
+            transform: translateX(3px);
+        }
+        .cta-link i {
+            margin-left: 6px;
+            transition: transform 0.2s ease;
+        }
+        .cta-link:hover i {
+            transform: translateX(3px);
+        }
+        .testimony-card {
+            position: relative;
+            border-radius: 16px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        .testimony-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+        }
+        .benefits-item {
+            border-left: 4px solid #4D62E5;
+            padding-left: 16px;
+            margin-bottom: 24px;
+            transition: all 0.3s ease;
+        }
+        .benefits-item:hover {
+            transform: translateX(5px);
+            border-left-width: 6px;
+        }
+        
+        /* Floating animation */
+        .floating {
+            animation: floating 3s ease-in-out infinite;
+        }
+        @keyframes floating {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-15px); }
+            100% { transform: translateY(0px); }
+        }
+        
+        /* Pulse animation */
+        .custom-pulse {
+            animation: custom-pulse 2s infinite;
+        }
+        @keyframes custom-pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(77, 98, 229, 0.4);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(77, 98, 229, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(77, 98, 229, 0);
+            }
+        }
+        
+        /* Improved card designs */
+        .modern-card {
+            border-radius: 16px;
+            overflow: hidden;
+            transition: all 0.4s ease;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        }
+        .modern-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+        }
+        
+        /* Comparison cards */
+        .comparison-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        .comparison-card:hover {
+            transform: scale(1.02);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        }
+        
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #4D62E5;
+            border-radius: 5px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #3a4db0;
+        }
+        
+        /* Focus styles */
+        *:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(77, 98, 229, 0.3);
+        }
+    </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize ScrollReveal with different animations for different sections
+            const sr = ScrollReveal({
+                duration: 1000,
+                distance: '40px',
+                easing: 'ease-out',
+                reset: false
+            });
+            
+            // Hero section elements
+            sr.reveal('.hero-title', { 
+                origin: 'left',
+                delay: 200
+            });
+            
+            sr.reveal('.hero-description', { 
+                origin: 'left',
+                delay: 400
+            });
+            
+            sr.reveal('.hero-cta', { 
+                origin: 'bottom',
+                delay: 600
+            });
+            
+            sr.reveal('.hero-visual-enhanced', { 
+                origin: 'right',
+                delay: 300,
+                distance: '60px'
+            });
+            
+            // Features section
+            sr.reveal('.feature-card', { 
+                origin: 'bottom',
+                interval: 200
+            });
+            
+            // Scenario section
+            sr.reveal('.comparison-card', { 
+                origin: 'bottom',
+                interval: 300,
+                distance: '80px'
+            });
+            
+            // Core elements
+            sr.reveal('.section-title', { 
+                origin: 'top',
+                distance: '20px'
+            });
+            
+            sr.reveal('.benefits-item', { 
+                origin: 'left',
+                interval: 100,
+                distance: '30px'
+            });
+            
+            sr.reveal('.testimony-card', { 
+                origin: 'bottom',
+                interval: 150
+            });
+            
+            // Header becomes opaque on scroll
+            window.addEventListener('scroll', function() {
+                const nav = document.querySelector('nav');
+                if (window.scrollY > 10) {
+                    nav.classList.add('shadow-md', 'bg-white');
+                    nav.classList.remove('bg-transparent');
+                } else {
+                    nav.classList.remove('shadow-md');
+                }
+            });
+
+            // Smooth scrolling for anchor links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href');
+                    const targetElement = document.querySelector(targetId);
+                    
+                    if (targetElement) {
+                        window.scrollTo({
+                            top: targetElement.offsetTop - 80, // Offset for fixed header
+                            behavior: 'smooth'
+                        });
+                        
+                        // Update URL hash without jumping
+                        history.pushState(null, null, targetId);
+                    }
+                });
+            });
+        });
+    </script>
+</head>
+<body class="bg-gray-50 antialiased">
+    <!-- Sticky Navigation -->
+    <nav class="fixed w-full bg-white shadow-md z-50 top-0 transition-all duration-300">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center">
+                <a href="#" class="font-bold text-2xl text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-blue-400">LearnLens</a>
+                <span class="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-full ml-2">Beta</span>
+            </div>
+            <div class="hidden md:flex space-x-1">
+                <a href="#challenge" class="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md transition duration-300 hover:bg-blue-50">The Challenge</a>
+                <a href="#transformation" class="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md transition duration-300 hover:bg-blue-50">Transformation Stories</a>
+                <a href="#solution" class="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md transition duration-300 hover:bg-blue-50">Our Solution</a>
+                <a href="#privacy" class="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md transition duration-300 hover:bg-blue-50">Privacy</a>
+                <a href="#testimonials" class="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md transition duration-300 hover:bg-blue-50">Parent Stories</a>
+            </div>
+            <a href="#early-access" class="btn-primary text-white font-semibold px-6 py-2 rounded-full text-sm custom-pulse">Get Free Access</a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="pt-32 pb-24 gradient-bg text-white relative overflow-hidden">
+        <!-- Background particles/dots for visual interest -->
+        <div class="absolute inset-0 overflow-hidden opacity-10">
+            <div class="absolute left-1/4 top-1/4 w-64 h-64 rounded-full bg-white"></div>
+            <div class="absolute right-1/3 bottom-1/2 w-32 h-32 rounded-full bg-blue-200"></div>
+            <div class="absolute left-1/2 bottom-1/4 w-48 h-48 rounded-full bg-blue-300"></div>
+            <!-- Additional animated elements -->
+            <div class="absolute right-1/4 top-1/3 w-20 h-20 rounded-full bg-yellow-200 animate-pulse" style="animation-duration: 3s;"></div>
+            <div class="absolute left-1/3 top-2/3 w-16 h-16 rounded-full bg-blue-400 animate-pulse" style="animation-duration: 4s;"></div>
+        </div>
+        
+        <div class="container mx-auto px-6 relative z-10">
+            <div class="flex flex-col md:flex-row items-center justify-between">
+                <div class="md:w-1/2 md:pr-12 text-center md:text-left mb-10 md:mb-0">
+                    <span class="inline-block bg-blue-700 text-white text-sm font-semibold px-4 py-1 rounded-full mb-4 shadow-lg">AI-Powered Parenting Insights</span>
+                    <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6 hero-title">
+                        <span class="text-yellow-300">Stop Guessing</span><br>
+                        <span class="text-blue-200">What Your Child Is Doing Online</span>
+                    </h1>
+                    <p class="text-xl md:text-2xl mb-8 opacity-90 hero-description">
+                        Transform concerning screen time into valuable developmental opportunities with AI-powered insights.
+                    </p>
+                    <div class="flex flex-col sm:flex-row gap-4 justify-center md:justify-start hero-cta">
+                        <a href="#early-access" class="inline-block btn-primary text-white font-semibold px-10 py-4 rounded-full text-lg shadow-lg hover:shadow-xl transition duration-300 custom-pulse">
+                            Get Free Premium
+                        </a>
+                        <a href="#transformation" class="inline-block bg-white text-blue-600 font-semibold px-8 py-4 rounded-full text-lg shadow-lg hover:shadow-xl transition duration-300 group">
+                            See Transformation Stories <i class="fas fa-arrow-right ml-1 group-hover:translate-x-2 transition-transform duration-300"></i>
+                        </a>
+                    </div>
+                    <div class="mt-6 flex items-center justify-center md:justify-start">
+                        <div class="bg-blue-800/80 backdrop-blur-sm rounded-lg px-4 py-3 flex items-center shadow-lg border border-blue-700/50">
+                            <div class="mr-3 text-center">
+                                <span class="block text-2xl font-bold text-white">350+</span>
+                                <span class="text-xs text-blue-200">parents joined</span>
+                            </div>
+                            <div class="h-8 w-0.5 bg-blue-400 mx-3"></div>
+                            <div class="text-center">
+                                <span class="block text-xl font-bold text-yellow-300 animate-pulse">120</span>
+                                <span class="text-xs text-blue-200">premium spots left</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="md:w-1/2 flex justify-center md:justify-end">
+                    <div class="hero-visual-enhanced floating">
+                        <!-- Combined header with name and insights status -->
+                        <div class="visual-header">
+                            <i class="fas fa-chart-bar"></i>
+                            <div class="flex flex-1 justify-between items-center">
+                                <span>Noah's Digital Summary</span>
+                                <div class="status-tag" style="margin-left: 8px; transform: scale(0.9);">
+                                    <i class="fas fa-bolt"></i>
+                                    <span>New Insights</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Insight cards with details -->
+                        <div class="visual-ai-summary" style="padding: 12px; margin-bottom: 12px;">
+                            <!-- Interest Discovery card -->
+                            <div class="insight-card interest" style="padding: 10px; margin-bottom: 8px;">
+                                <div class="insight-badge interest-badge">
+                                    <i class="fas fa-rocket"></i>
+                                    <span>Interest Discovery</span>
+                                </div>
+                                <div class="insight-content">
+                                    <p class="text-gray-700 text-sm mb-1">Deep dive into <strong>Ancient Rome</strong> across platforms</p>
+                                    
+                                    <div class="flex justify-between items-center">
+                                        <div class="w-full bg-gray-200 rounded-full h-1.5 mr-2">
+                                            <div class="bg-blue-600 h-1.5 rounded-full" style="width: 85%"></div>
+                                        </div>
+                                        <span class="text-xs font-semibold text-blue-600 whitespace-nowrap">85% match</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Creative Activity card -->
+                            <div class="insight-card creative" style="padding: 10px; margin-bottom: 8px;">
+                                <div class="insight-badge creative-badge">
+                                    <i class="fas fa-gamepad"></i>
+                                    <span>Creative Activity</span>
+                                </div>
+                                <div class="insight-content">
+                                    <p class="text-gray-700 text-sm mb-1">Building historical structures in Minecraft (55 mins)</p>
+                                    
+                                    <div class="flex items-center justify-between text-xs text-gray-500" style="margin-top: 2px;">
+                                        <div class="flex items-center">
+                                            <i class="fas fa-clock text-purple-400 mr-1"></i>
+                                            <span>Most active: 4-5pm</span>
+                                        </div>
+                                        
+                                        <div class="flex items-center ml-2">
+                                            <i class="fas fa-users text-purple-400 mr-1"></i>
+                                            <span>Collaborating with 2 friends</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Learning Opportunity card -->
+                            <div class="insight-card learning" style="padding: 10px; margin-bottom: 0;">
+                                <div class="insight-badge learning-badge">
+                                    <i class="fas fa-lightbulb"></i>
+                                    <span>Learning Opportunity</span>
+                                </div>
+                                <div class="insight-content">
+                                    <p class="text-gray-700 text-sm mb-1">Ready for more advanced history content (8th grade level)</p>
+                                    
+                                    <div class="flex items-center text-xs">
+                                        <i class="fas fa-book-open text-green-500 mr-1"></i>
+                                        <span class="font-medium">Recommended:</span>
+                                        <span class="ml-1">Ancient Roman Engineering</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Footer with update info and CTA -->
+                        <div class="flex justify-between items-center">
+                            <div class="update-indicator">
+                                <i class="fas fa-sync-alt animate-spin"></i>
+                                <span>Updated 2 hours ago</span>
+                            </div>
+                            
+                            <a href="#early-access" class="cta-link">
+                                <span>Get insights now</span>
+                                <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Scenario 2 - Gaming Example with Strong Data Visualization -->
+                <div class="bg-white rounded-xl shadow-xl overflow-hidden border border-gray-200 transform transition-all hover:shadow-2xl comparison-card reveal">
+                    <!-- Scenario Header -->
+                    <div class="bg-gradient-to-r from-blue-600 to-blue-800 p-5 text-white">
+                        <div class="flex items-center">
+                            <div class="bg-white/20 rounded-lg p-2 mr-4">
+                                <span class="text-2xl">🎮</span>
+                            </div>
+                            <div>
+                                <div class="flex items-center">
+                                    <h3 class="text-xl font-bold">Gaming to Historical Learning</h3>
+                                    <span class="ml-3 bg-white/20 text-white text-xs px-2 py-1 rounded-full">3x Academic Interest</span>
+                                </div>
+                                <p class="text-blue-100 text-sm">How Minecraft revealed David's hidden aptitude for history and architecture</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="p-5">
+                        <div class="flex flex-col md:flex-row gap-6">
+                            <!-- Left Column: Problem -->
+                            <div class="md:w-1/4 bg-gray-50 p-4 rounded-lg">
+                                <h4 class="text-base font-semibold text-red-600 mb-2 flex items-center">
+                                    <i class="fas fa-exclamation-circle text-red-500 mr-2"></i>
+                                    The Challenge
+                                </h4>
+                                <div class="bg-white/80 p-3 rounded-lg shadow-sm mb-3">
+                                    <p class="text-gray-800 italic text-sm">"David was spending hours on Minecraft that seemed mindless and disconnected from his schoolwork."</p>
+                                </div>
+                                <p class="text-xs text-gray-600 mt-2">Parents saw gaming as pure entertainment with no educational value.</p>
+                            </div>
+                            
+                            <!-- Middle Column: LearnLens Analysis -->
+                            <div class="md:w-2/4">
+                                <div class="bg-blue-50 p-4 rounded-lg border-t-4 border-blue-500 h-full">
+                                    <h4 class="text-base font-semibold text-blue-600 mb-3 flex items-center">
+                                        <i class="fas fa-brain text-blue-500 mr-2"></i>
+                                        What LearnLens Discovered
+                                    </h4>
+                                    
+                                    <div class="grid md:grid-cols-2 gap-4">
+                                        <div class="bg-white p-3 rounded-lg shadow-sm">
+                                            <h5 class="text-sm font-medium text-gray-800 mb-2">Gaming Activity Analysis</h5>
+                                            <div class="space-y-2">
+                                                <div class="flex justify-between text-xs">
+                                                    <span>Historical Building</span>
+                                                    <span class="font-medium">42%</span>
+                                                </div>
+                                                <div class="w-full bg-gray-200 rounded-full h-1.5">
+                                                    <div class="bg-blue-600 h-1.5 rounded-full" style="width: 42%"></div>
+                                                </div>
+                                                
+                                                <div class="flex justify-between text-xs">
+                                                    <span>Engineering Systems</span>
+                                                    <span class="font-medium">28%</span>
+                                                </div>
+                                                <div class="w-full bg-gray-200 rounded-full h-1.5">
+                                                    <div class="bg-green-500 h-1.5 rounded-full" style="width: 28%"></div>
+                                                </div>
+                                                
+                                                <div class="flex justify-between text-xs">
+                                                    <span>Social Collaboration</span>
+                                                    <span class="font-medium">15%</span>
+                                                </div>
+                                                <div class="w-full bg-gray-200 rounded-full h-1.5">
+                                                    <div class="bg-yellow-500 h-1.5 rounded-full" style="width: 15%"></div>
+                                                </div>
+                                                
+                                                <div class="flex justify-between text-xs">
+                                                    <span>Creative Design</span>
+                                                    <span class="font-medium">15%</span>
+                                                </div>
+                                                <div class="w-full bg-gray-200 rounded-full h-1.5">
+                                                    <div class="bg-purple-500 h-1.5 rounded-full" style="width: 15%"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="bg-white p-3 rounded-lg shadow-sm">
+                                            <h5 class="text-sm font-medium text-gray-800 mb-2">Learning Skills Applied</h5>
+                                            <div class="space-y-2">
+                                                <div class="flex items-start">
+                                                    <div class="h-4 w-4 rounded-full bg-blue-100 flex items-center justify-center mr-2 flex-shrink-0 mt-0.5">
+                                                        <i class="fas fa-check text-blue-600 text-xs"></i>
+                                                    </div>
+                                                    <p class="text-xs text-gray-700">Architectural accuracy to real historical structures</p>
+                                                </div>
+                                                <div class="flex items-start">
+                                                    <div class="h-4 w-4 rounded-full bg-blue-100 flex items-center justify-center mr-2 flex-shrink-0 mt-0.5">
+                                                        <i class="fas fa-check text-blue-600 text-xs"></i>
+                                                    </div>
+                                                    <p class="text-xs text-gray-700">Advanced physics concepts in redstone mechanisms</p>
+                                                </div>
+                                                <div class="flex items-start">
+                                                    <div class="h-4 w-4 rounded-full bg-blue-100 flex items-center justify-center mr-2 flex-shrink-0 mt-0.5">
+                                                        <i class="fas fa-check text-blue-600 text-xs"></i>
+                                                    </div>
+                                                    <p class="text-xs text-gray-700">Research on historical periods for authenticity</p>
+                                                </div>
+                                                <div class="flex items-start">
+                                                    <div class="h-4 w-4 rounded-full bg-blue-100 flex items-center justify-center mr-2 flex-shrink-0 mt-0.5">
+                                                        <i class="fas fa-check text-blue-600 text-xs"></i>
+                                                    </div>
+                                                    <p class="text-xs text-gray-700">Project planning and resource management</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Action Recommendations - NEW -->
+                                    <div class="bg-white mt-3 p-3 rounded-lg border-l-4 border-yellow-400">
+                                        <h5 class="text-sm font-medium text-yellow-700 mb-2">
+                                            <i class="fas fa-clipboard-list text-yellow-500 mr-1"></i>
+                                            LearnLens Recommended Actions:
+                                        </h5>
+                                        <div class="grid md:grid-cols-2 gap-2">
+                                            <div class="flex items-start">
+                                                <span class="h-4 w-4 rounded-full bg-yellow-100 flex items-center justify-center mr-2 flex-shrink-0 mt-0.5">
+                                                    <i class="fas fa-arrow-right text-yellow-600 text-xs"></i>
+                                                </span>
+                                                <span class="text-xs">Enroll in "Young Architects" weekend program that incorporates historical structures</span>
+                                            </div>
+                                            <div class="flex items-start">
+                                                <span class="h-4 w-4 rounded-full bg-yellow-100 flex items-center justify-center mr-2 flex-shrink-0 mt-0.5">
+                                                    <i class="fas fa-arrow-right text-yellow-600 text-xs"></i>
+                                                </span>
+                                                <span class="text-xs">Provide history books featuring architectural developments with visual elements</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Right Column: Results -->
+                            <div class="md:w-1/4 bg-green-50 p-4 rounded-lg border-t-4 border-green-500">
+                                <h4 class="text-base font-semibold text-green-600 mb-2 flex items-center">
+                                    <i class="fas fa-chart-line text-green-500 mr-2"></i>
+                                    Real-World Impact
+                                </h4>
+                                <div class="space-y-3">
+                                    <div>
+                                        <div class="flex justify-between text-xs mb-1">
+                                            <span class="font-medium">History Grade</span>
+                                            <span class="text-green-600 font-bold">C+ → A-</span>
+                                        </div>
+                                        <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                            <div class="bg-green-500 h-2.5 rounded-full" style="width: 87%"></div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div class="flex justify-between text-xs mb-1">
+                                            <span class="font-medium">Research Projects</span>
+                                            <span class="text-green-600 font-bold">+180%</span>
+                                        </div>
+                                        <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                            <div class="bg-green-500 h-2.5 rounded-full" style="width: 75%"></div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div class="flex justify-between text-xs mb-1">
+                                            <span class="font-medium">Educational Content</span>
+                                            <span class="text-green-600 font-bold">+200%</span>
+                                        </div>
+                                        <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                            <div class="bg-green-500 h-2.5 rounded-full" style="width: 80%"></div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Action Taken - NEW -->
+                                    <div class="bg-white mt-3 p-3 rounded-lg border-l-4 border-green-600">
+                                        <p class="text-xs italic text-gray-700">"Following LearnLens advice, we enrolled him in the architect program they suggested. In 2 months, he created a historical model that won the school competition. His passion is now being channeled productively."</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="p-3 bg-blue-600 text-center">
+                        <a href="#early-access" class="inline-block bg-white text-blue-700 font-semibold px-5 py-2 rounded-full hover:bg-blue-50 transition duration-300 shadow-md hover:shadow-lg text-sm">
+                            Discover Your Child's Hidden Potential <i class="fas fa-arrow-right ml-1"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Scenario 3 - Data-Focused STEM Potential -->
+                <div class="bg-white rounded-xl shadow-xl overflow-hidden border border-gray-200 transform transition-all hover:shadow-2xl comparison-card reveal">
+                    <!-- Scenario Header -->
+                    <div class="bg-gradient-to-r from-indigo-600 to-indigo-400 p-5 text-white">
+                        <div class="flex items-center">
+                            <div class="bg-white/20 rounded-lg p-2 mr-4">
+                                <span class="text-2xl">📊</span>
+                            </div>
+                            <div>
+                                <div class="flex items-center">
+                                    <h3 class="text-xl font-bold">Uncovering Hidden STEM Talent</h3>
+                                    <span class="ml-3 bg-white/20 text-white text-xs px-2 py-1 rounded-full">2.3 Grade Levels Above</span>
+                                </div>
+                                <p class="text-indigo-100 text-sm">How data analysis revealed Daniel's exceptional engineering aptitude</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="p-5 bg-white">
+                        <!-- Condensed but powerful visualization of the transformation -->
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div>
+                                <div class="rounded-xl overflow-hidden">
+                                    <div class="bg-indigo-50 p-4">
+                                        <h5 class="font-medium text-indigo-800 mb-3 text-sm">Before LearnLens: Parent's View</h5>
+                                        <div class="space-y-3">
+                                            <div class="bg-white/80 p-3 rounded-lg shadow-sm">
+                                                <p class="text-gray-800 italic text-sm">"We thought Daniel was just playing random games online. We had no idea there was a pattern to his interests."</p>
+                                            </div>
+                                            
+                                            <div class="bg-white p-3 rounded-lg flex items-center shadow-sm">
+                                                <div class="w-14 h-14 bg-gray-100 rounded-full flex items-center justify-center mr-3">
+                                                    <i class="fas fa-random text-gray-400 text-lg"></i>
+                                                </div>
+                                                <div>
+                                                    <h5 class="font-medium text-gray-700 text-sm">Perceived as Random Activity</h5>
+                                                    <p class="text-xs text-gray-500">No clear patterns or learning value identified</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="bg-white p-4">
+                                        <h5 class="font-medium text-green-700 mb-3 text-sm">After LearnLens: Data-Driven Insights</h5>
+                                        <div class="bg-indigo-50 p-3 rounded-xl">
+                                            <h6 class="font-medium text-indigo-800 mb-2 text-xs">Content Engagement Distribution</h6>
+                                            <div class="h-48 w-full">
+                                                <canvas id="activityDistributionChart"></canvas>
+                                            </div>
+                                            <p class="text-xs text-gray-500 mt-2 italic text-center">Analysis of 4 weeks of digital activity</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="flex flex-col space-y-4">
+                                <div class="bg-indigo-100 p-4 rounded-xl">
+                                    <h5 class="font-medium text-indigo-800 mb-3 text-sm">LearnLens AI Analysis Results</h5>
+                                    
+                                    <div class="space-y-4">
+                                        <div class="bg-white p-3 rounded-lg shadow-sm">
+                                            <div class="flex items-center mb-2">
+                                                <div class="h-6 w-6 rounded-full bg-blue-100 flex items-center justify-center mr-2">
+                                                    <i class="fas fa-brain text-blue-600 text-xs"></i>
+                                                </div>
+                                                <h6 class="font-medium text-gray-800 text-sm">Learning Style Analysis</h6>
+                                            </div>
+                                            <p class="text-xs text-gray-700">87% visual-spatial learning preference identified across all digital interactions.</p>
+                                        </div>
+                                        
+                                        <div class="bg-white p-3 rounded-lg shadow-sm">
+                                            <div class="flex items-center mb-2">
+                                                <div class="h-6 w-6 rounded-full bg-green-100 flex items-center justify-center mr-2">
+                                                    <i class="fas fa-lightbulb text-green-600 text-xs"></i>
+                                                </div>
+                                                <h6 class="font-medium text-gray-800 text-sm">Academic Skills Assessment</h6>
+                                            </div>
+                                            
+                                            <div class="space-y-2">
+                                                <div>
+                                                    <div class="flex justify-between mb-1">
+                                                        <span class="text-xs text-gray-700">STEM Potential</span>
+                                                        <span class="text-xs font-medium text-blue-600">+2.3 grade levels</span>
+                                                    </div>
+                                                    <div class="w-full bg-gray-200 rounded-full h-2">
+                                                        <div class="bg-blue-600 h-2 rounded-full" style="width: 92%"></div>
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <div class="flex justify-between mb-1">
+                                                        <span class="text-xs text-gray-700">Problem-Solving</span>
+                                                        <span class="text-xs font-medium text-green-600">92nd percentile</span>
+                                                    </div>
+                                                    <div class="w-full bg-gray-200 rounded-full h-2">
+                                                        <div class="bg-green-600 h-2 rounded-full" style="width: 92%"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Action Recommendations - NEW -->
+                                        <div class="bg-white p-3 rounded-lg border-l-4 border-yellow-400">
+                                            <h5 class="text-sm font-medium text-yellow-700 mb-2">
+                                                <i class="fas fa-clipboard-list text-yellow-500 mr-1"></i>
+                                                LearnLens Recommended Actions:
+                                            </h5>
+                                            <ul class="space-y-2 text-xs">
+                                                <li class="flex items-start">
+                                                    <span class="h-4 w-4 rounded-full bg-yellow-100 flex items-center justify-center mr-2 flex-shrink-0 mt-0.5">
+                                                        <i class="fas fa-arrow-right text-yellow-600 text-xs"></i>
+                                                    </span>
+                                                    <span>Enroll in "Junior Engineers" weekend program (specifically matched to his skill level)</span>
+                                                </li>
+                                                <li class="flex items-start">
+                                                    <span class="h-4 w-4 rounded-full bg-yellow-100 flex items-center justify-center mr-2 flex-shrink-0 mt-0.5">
+                                                        <i class="fas fa-arrow-right text-yellow-600 text-xs"></i>
+                                                    </span>
+                                                    <span>Set up home STEM project area with visual-spatial learning materials</span>
+                                                </li>
+                                                <li class="flex items-start">
+                                                    <span class="h-4 w-4 rounded-full bg-yellow-100 flex items-center justify-center mr-2 flex-shrink-0 mt-0.5">
+                                                        <i class="fas fa-arrow-right text-yellow-600 text-xs"></i>
+                                                    </span>
+                                                    <span>Meet with school counselor to discuss advanced placement opportunities</span>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                        
+                                        <div class="bg-green-50 p-3 rounded-lg border-l-3 border-green-500">
+                                            <h6 class="font-medium text-green-800 text-sm mb-2">Transformation After Following Recommendations</h6>
+                                            <p class="text-xs text-gray-700 mb-2">Within 3 months, Daniel advanced to the top of his engineering program and was selected for a special mentorship.</p>
+                                            
+                                            <div class="flex justify-between text-xs mb-1">
+                                                <span class="text-gray-600">Academic Assessment</span>
+                                                <span class="text-green-600 font-bold">94% success rate</span>
+                                            </div>
+                                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                                <div class="bg-green-500 h-2 rounded-full" style="width: 94%"></div>
+                                            </div>
+                                            
+                                            <p class="text-xs italic text-gray-600 mt-3">"We followed all three recommended actions from LearnLens. His teacher was shocked by his advanced abilities. Without these specific recommendations, we would have continued with standard activities that didn't challenge him."</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- CTA Link to Solution -->
+            <div class="text-center">
+                <a href="#solution" class="inline-block btn-primary text-white font-semibold px-8 py-4 rounded-full text-lg shadow-lg hover:shadow-xl transition duration-300 group">
+                    See How LearnLens Makes This Possible <i class="fas fa-arrow-down ml-2 group-hover:translate-y-1 transition-transform duration-300"></i>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Solution Section -->
+    <section id="solution" class="py-20 bg-gray-50">
+        <div class="container mx-auto px-6">
+            <div class="max-w-3xl mx-auto text-center mb-12 section-title">
+                <span class="inline-block bg-blue-100 text-blue-700 text-sm font-semibold px-4 py-1 rounded-full mb-4">Our Solution</span>
+                <h2 class="text-3xl md:text-4xl font-bold mb-6 text-gray-800">LearnLens: Your Window Into Their Digital World</h2>
+                <p class="text-lg text-gray-600">
+                    Our intelligent AI goes beyond surface-level data, analyzing your child's online activities to provide meaningful insights about their interests, learning patterns, social connections, and more.
+                </p>
+            </div>
+
+            <!-- Data Visualization Section -->
+            <div class="mb-16 bg-white p-8 rounded-2xl shadow-lg">
+                <h3 class="text-2xl font-bold mb-8 text-center text-gray-800">The Data Behind Digital Learning</h3>
+                
+                <div class="grid md:grid-cols-2 gap-10">
+                    <!-- Chart 1: Time vs. Learning Value -->
+                    <div class="bg-white p-6 rounded-xl shadow-sm">
+                        <h4 class="text-lg font-semibold mb-4 text-center">Learning Potential in Digital Activities</h4>
+                        <div class="relative h-80 w-full" id="chart-learning-potential">
+                            <canvas id="learningChart"></canvas>
+                        </div>
+                        <p class="text-sm text-gray-600 mt-4 text-center italic">
+                            Most parents underestimate the learning value in common digital activities
+                        </p>
+                    </div>
+                    
+                    <!-- Chart 2: Interest Discovery Rate -->
+                    <div class="bg-white p-6 rounded-xl shadow-sm">
+                        <h4 class="text-lg font-semibold mb-4 text-center">New Interests Discovered Monthly</h4>
+                        <div class="relative h-80 w-full" id="chart-discovery-rate">
+                            <canvas id="discoveryChart"></canvas>
+                        </div>
+                        <p class="text-sm text-gray-600 mt-4 text-center italic">
+                            LearnLens helps parents discover 3x more learning interests than traditional monitoring
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- Key Stats Row -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-10">
+                    <div class="bg-blue-50 p-4 rounded-lg text-center">
+                        <span class="block text-3xl font-bold text-blue-600 mb-1">78%</span>
+                        <p class="text-sm text-gray-700">of screen time contains valuable learning opportunities</p>
+                    </div>
+                    <div class="bg-green-50 p-4 rounded-lg text-center">
+                        <span class="block text-3xl font-bold text-green-600 mb-1">3.2x</span>
+                        <p class="text-sm text-gray-700">increase in parent-child meaningful conversations</p>
+                    </div>
+                    <div class="bg-purple-50 p-4 rounded-lg text-center">
+                        <span class="block text-3xl font-bold text-purple-600 mb-1">68%</span>
+                        <p class="text-sm text-gray-700">reduction in screen time conflicts</p>
+                    </div>
+                    <div class="bg-yellow-50 p-4 rounded-lg text-center">
+                        <span class="block text-3xl font-bold text-yellow-600 mb-1">85%</span>
+                        <p class="text-sm text-gray-700">of parents found unknown child interests</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-10">
+                <div class="bg-white p-8 rounded-2xl shadow-lg feature-card text-center relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-24 h-24 bg-blue-100 rounded-bl-full -mr-10 -mt-10 z-0"></div>
+                    <div class="relative z-10">
+                        <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-6 mx-auto">
+                            <i class="fas fa-eye text-blue-600 text-2xl"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-4 text-gray-800">Discreetly Observe Activity</h3>
+                        <p class="text-gray-600">LearnLens intelligently observes digital interactions, capturing content and context so you get the full picture, effortlessly.</p>
+                        <ul class="mt-6 space-y-2 text-left text-gray-600 text-sm">
+                            <li class="flex items-start">
+                                <span class="h-5 w-5 rounded-full bg-green-100 text-green-600 flex items-center justify-center mr-2 mt-0.5 flex-shrink-0">
+                                    <i class="fas fa-check text-xs"></i>
+                                </span>
+                                <span>Privacy-first monitoring across multiple devices</span>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="h-5 w-5 rounded-full bg-green-100 text-green-600 flex items-center justify-center mr-2 mt-0.5 flex-shrink-0">
+                                    <i class="fas fa-check text-xs"></i>
+                                </span>
+                                <span>Lightweight with minimal device impact</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="bg-white p-8 rounded-2xl shadow-lg feature-card text-center relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-24 h-24 bg-purple-100 rounded-bl-full -mr-10 -mt-10 z-0"></div>
+                    <div class="relative z-10">
+                        <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mb-6 mx-auto">
+                            <i class="fas fa-brain text-purple-600 text-2xl"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-4 text-gray-800">AI-Powered Analysis</h3>
+                        <p class="text-gray-600">Our advanced AI deciphers the meaning – topics, educational value, and engagement patterns – so you understand their interests at a deeper level.</p>
+                        <ul class="mt-6 space-y-2 text-left text-gray-600 text-sm">
+                            <li class="flex items-start">
+                                <span class="h-5 w-5 rounded-full bg-green-100 text-green-600 flex items-center justify-center mr-2 mt-0.5 flex-shrink-0">
+                                    <i class="fas fa-check text-xs"></i>
+                                </span>
+                                <span>Discover hidden talents and passions</span>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="h-5 w-5 rounded-full bg-green-100 text-green-600 flex items-center justify-center mr-2 mt-0.5 flex-shrink-0">
+                                    <i class="fas fa-check text-xs"></i>
+                                </span>
+                                <span>Identify meaningful learning moments</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="bg-white p-8 rounded-2xl shadow-lg feature-card text-center relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-24 h-24 bg-green-100 rounded-bl-full -mr-10 -mt-10 z-0"></div>
+                    <div class="relative z-10">
+                        <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-6 mx-auto">
+                            <i class="fas fa-chart-line text-green-600 text-2xl"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-4 text-gray-800">Actionable Insights Delivered</h3>
+                        <p class="text-gray-600">Receive clear, natural-language summaries and visual reports, making it simple to connect, discuss, and guide their learning journey.</p>
+                        <ul class="mt-6 space-y-2 text-left text-gray-600 text-sm">
+                            <li class="flex items-start">
+                                <span class="h-5 w-5 rounded-full bg-green-100 text-green-600 flex items-center justify-center mr-2 mt-0.5 flex-shrink-0">
+                                    <i class="fas fa-check text-xs"></i>
+                                </span>
+                                <span>Personalized conversation starters</span>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="h-5 w-5 rounded-full bg-green-100 text-green-600 flex items-center justify-center mr-2 mt-0.5 flex-shrink-0">
+                                    <i class="fas fa-check text-xs"></i>
+                                </span>
+                                <span>Weekly reports with actionable recommendations</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Benefits List -->
+            <div class="max-w-4xl mx-auto mt-20 bg-white rounded-2xl p-8 shadow-lg border border-gray-100">
+                <h3 class="text-2xl font-bold mb-8 text-center">How LearnLens Transforms Your Parenting Experience</h3>
+                
+                <div class="grid md:grid-cols-2 gap-x-12 gap-y-8">
+                    <div class="benefits-item">
+                        <h4 class="font-semibold text-lg mb-2">Discover Hidden Interests</h4>
+                        <p class="text-gray-600">See when "just gaming" is actually exploring history, science, or strategic thinking through interactive experiences.</p>
+                    </div>
+                    
+                    <div class="benefits-item">
+                        <h4 class="font-semibold text-lg mb-2">Reduce Screen Time Conflicts</h4>
+                        <p class="text-gray-600">Make decisions based on content quality and engagement, not just time spent, leading to more productive conversations.</p>
+                    </div>
+                    
+                    <div class="benefits-item">
+                        <h4 class="font-semibold text-lg mb-2">Support Growth Opportunities</h4>
+                        <p class="text-gray-600">Identify genuine learning moments across all online activities and nurture those interests.</p>
+                    </div>
+                    
+                    <div class="benefits-item">
+                        <h4 class="font-semibold text-lg mb-2">Strengthen Your Connection</h4>
+                        <p class="text-gray-600">Have meaningful conversations about their online experiences and interests, fostering a deeper relationship.</p>
+                    </div>
+                    
+                    <div class="benefits-item">
+                        <h4 class="font-semibold text-lg mb-2">Understand Digital Social Life</h4>
+                        <p class="text-gray-600">Gain insight into their online social connections and interactions in a respectful, non-invasive way.</p>
+                    </div>
+                    
+                    <div class="benefits-item">
+                        <h4 class="font-semibold text-lg mb-2">Nurture Mental Well-being</h4>
+                        <p class="text-gray-600">Detect patterns that might indicate stress, anxiety, or special interests that could benefit from support.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Privacy Section -->
+    <section id="privacy" class="py-20 bg-white">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-12 section-title">
+                <span class="inline-block bg-blue-100 text-blue-700 text-sm font-semibold px-4 py-1 rounded-full mb-4">Privacy First</span>
+                <h2 class="text-3xl md:text-4xl font-bold mb-6 text-gray-800">Your Family's Privacy: Our Foundation</h2>
+                <p class="text-lg text-gray-600 max-w-3xl mx-auto">
+                    We're building LearnLens with a "Privacy by Design" philosophy. Your trust is paramount.
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-4 gap-6 max-w-6xl mx-auto mb-16">
+                <!-- Card 1 -->
+                <div class="bg-gray-50 p-6 rounded-xl shadow-sm text-center">
+                    <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-shield-alt text-blue-600 text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">Secure by Design</h3>
+                    <p class="text-gray-600 text-sm">
+                        Prioritizing on-device processing where feasible and robust encryption for all data.
+                    </p>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="bg-gray-50 p-6 rounded-xl shadow-sm text-center">
+                    <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-database text-green-600 text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">Your Data is Yours</h3>
+                    <p class="text-gray-600 text-sm">
+                        We will <span class="italic">never</span> sell your personal data to advertisers or third parties. Period.
+                    </p>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="bg-gray-50 p-6 rounded-xl shadow-sm text-center">
+                    <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-ban text-red-600 text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">No Ad Targeting</h3>
+                    <p class="text-gray-600 text-sm">
+                        The insights are for you and your child, not for advertisers to exploit.
+                    </p>
+                </div>
+
+                <!-- Card 4 -->
+                <div class="bg-gray-50 p-6 rounded-xl shadow-sm text-center">
+                    <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-gavel text-purple-600 text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">Compliance Focused</h3>
+                    <p class="text-gray-600 text-sm">
+                        Built to meet and exceed standards like COPPA and GDPR for child privacy.
+                    </p>
+                </div>
+            </div>
+
+            <div class="max-w-4xl mx-auto bg-blue-50 rounded-xl p-8 shadow-md">
+                <h3 class="text-2xl font-bold mb-4 text-center text-blue-800">Our Commitment to Responsible Technology</h3>
+                <p class="text-gray-700 text-center">
+                    LearnLens is created by parents, for parents. We believe technology should empower understanding and connection, not enable intrusive surveillance. Our goal is to help you guide your child's digital journey with confidence and trust, fostering healthy habits through insight, not just restriction.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section id="testimonials" class="py-20 bg-gray-50">
+        <div class="container mx-auto px-6">
+            <div class="max-w-3xl mx-auto text-center mb-16 section-title">
+                <span class="inline-block bg-yellow-100 text-yellow-700 text-sm font-semibold px-4 py-1 rounded-full mb-4">Parent Stories</span>
+                <h2 class="text-3xl md:text-4xl font-bold mb-6 text-gray-800">What Parents Are Saying</h2>
+                <p class="text-lg text-gray-600">
+                    Hear from parents who have transformed their approach to children's screen time with LearnLens.
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+                <!-- Testimonial 1 -->
+                <div class="testimony-card bg-white p-8 rounded-xl shadow-lg">
+                    <div class="flex items-center mb-6">
+                        <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mr-4">
+                            <span class="text-blue-600 font-bold">S</span>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-gray-800">Sarah M.</h4>
+                            <p class="text-gray-500 text-sm">Parent of 10-year-old twins</p>
+                        </div>
+                    </div>
+                    <div class="flex mb-6 text-yellow-400">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <p class="text-gray-600 mb-4">
+                        "LearnLens has completely changed our family dynamics. I used to worry constantly about screen time, but now I can see how my twins are using technology to pursue their interests in science and coding. The conversation starters have been invaluable."
+                    </p>
+                    <div class="flex items-center justify-between text-sm">
+                        <p class="text-blue-600 font-medium">Using LearnLens for 3 months</p>
+                        <div class="flex items-center text-green-600">
+                            <i class="fas fa-chart-line mr-1"></i>
+                            <span>+45% engagement</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Testimonial 2 -->
+                <div class="testimony-card bg-white p-8 rounded-xl shadow-lg">
+                    <div class="flex items-center mb-6">
+                        <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mr-4">
+                            <span class="text-green-600 font-bold">D</span>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-gray-800">David T.</h4>
+                            <p class="text-gray-500 text-sm">Father of 12-year-old</p>
+                        </div>
+                    </div>
+                    <div class="flex mb-6 text-yellow-400">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star-half-alt"></i>
+                    </div>
+                    <p class="text-gray-600 mb-4">
+                        "As a working parent, I was missing so many opportunities to connect with my son about his interests. LearnLens has given me a window into his digital world that's about quality, not just quantity. We now have much more meaningful conversations."
+                    </p>
+                    <div class="flex items-center justify-between text-sm">
+                        <p class="text-blue-600 font-medium">Using LearnLens for 2 months</p>
+                        <div class="flex items-center text-green-600">
+                            <i class="fas fa-chart-line mr-1"></i>
+                            <span>+62% conversation</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Testimonial 3 -->
+                <div class="testimony-card bg-white p-8 rounded-xl shadow-lg">
+                    <div class="flex items-center mb-6">
+                        <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mr-4">
+                            <span class="text-purple-600 font-bold">J</span>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-gray-800">Jennifer K.</h4>
+                            <p class="text-gray-500 text-sm">Mother of teenagers</p>
+                        </div>
+                    </div>
+                    <div class="flex mb-6 text-yellow-400">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <p class="text-gray-600 mb-4">
+                        "My teenagers were resistant to traditional monitoring apps, but LearnLens has been different. They appreciate that it's about understanding their interests rather than just tracking time. It's helped us rebuild trust around technology use."
+                    </p>
+                    <div class="flex items-center justify-between text-sm">
+                        <p class="text-blue-600 font-medium">Using LearnLens for 4 months</p>
+                        <div class="flex items-center text-green-600">
+                            <i class="fas fa-chart-line mr-1"></i>
+                            <span>+73% trust factor</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Trust Indicators -->
+            <div class="mt-20 text-center">
+                <p class="text-xl font-semibold text-gray-700 mb-8">Trusted by Parents & Privacy Advocates</p>
+                <div class="flex flex-wrap justify-center gap-8 opacity-70">
+                    <img src="https://placehold.co/150x50/EEEEEE/999999?text=ParentsTech" alt="ParentsTech" class="h-10">
+                    <img src="https://placehold.co/150x50/EEEEEE/999999?text=DigitalKids" alt="DigitalKids" class="h-10">
+                    <img src="https://placehold.co/150x50/EEEEEE/999999?text=SafeOnline" alt="SafeOnline" class="h-10">
+                    <img src="https://placehold.co/150x50/EEEEEE/999999?text=FamilyPrivacy" alt="FamilyPrivacy" class="h-10">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section id="early-access" class="py-20 gradient-bg text-white">
+        <div class="container mx-auto px-6">
+            <div class="max-w-5xl mx-auto">
+                <div class="grid md:grid-cols-2 gap-12 items-center">
+                    <div>
+                        <span class="inline-block bg-white text-blue-600 text-sm font-semibold px-4 py-1 rounded-full mb-4">Limited Early Access</span>
+                        <h2 class="text-3xl md:text-4xl font-bold mb-6">Transform Your Family's Digital Experience Today</h2>
+                        <p class="text-lg mb-8 opacity-90">
+                            Join our waitlist to be among the first parents to see what your child is actually learning online - not just how much time they're spending.
+                        </p>
+                        
+                        <div class="space-y-4 mb-8">
+                            <div class="flex items-start">
+                                <span class="h-6 w-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center mr-3 mt-0.5 flex-shrink-0">
+                                    <i class="fas fa-check text-sm"></i>
+                                </span>
+                                <p><span class="font-bold text-white">First 500 subscribers</span> get 3 months free premium access</p>
+                            </div>
+                            <div class="flex items-start">
+                                <span class="h-6 w-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center mr-3 mt-0.5 flex-shrink-0">
+                                    <i class="fas fa-check text-sm"></i>
+                                </span>
+                                <p>Priority onboarding with a personal setup guide</p>
+                            </div>
+                            <div class="flex items-start">
+                                <span class="h-6 w-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center mr-3 mt-0.5 flex-shrink-0">
+                                    <i class="fas fa-check text-sm"></i>
+                                </span>
+                                <p>Exclusive parent community access for sharing experiences</p>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-blue-800 p-4 rounded-lg inline-block">
+                            <p class="text-sm mb-2 opacity-80">Our community is growing fast:</p>
+                            <div class="flex items-center">
+                                <span class="text-2xl font-bold mr-2">350+</span>
+                                <p class="text-sm">parents already on our waitlist <span class="block text-yellow-300 font-medium">Only 120 premium spots remaining!</span></p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-2xl shadow-xl p-8">
+                        <h3 class="text-2xl font-bold mb-4 text-gray-800">Join the Early Access Waitlist</h3>
+                        <p class="text-gray-600 mb-6">Get first access to transform screen time data into meaningful insights about your child's digital life.</p>
+                        <form class="space-y-5">
+                            <div>
+                                <label for="name" class="block text-sm font-medium text-gray-700 text-left mb-1">Full Name</label>
+                                <input type="text" id="name" name="name" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3 border text-gray-800" placeholder="Your Name">
+                            </div>
+                            <div>
+                                <label for="email" class="block text-sm font-medium text-gray-700 text-left mb-1">Email Address</label>
+                                <input type="email" id="email" name="email" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3 border text-gray-800" placeholder="your@email.com">
+                            </div>
+                            <div>
+                                <label for="children" class="block text-sm font-medium text-gray-700 text-left mb-1">Children's Ages (optional)</label>
+                                <input type="text" id="children" name="children" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3 border text-gray-800" placeholder="e.g., 7, 10, 13">
+                            </div>
+                            <button type="submit" class="w-full btn-primary text-white font-semibold px-6 py-4 rounded-lg text-lg hover:shadow-xl transition duration-300 transform hover:-translate-y-1 flex items-center justify-center">
+                                <span>Secure Your Free Premium Access</span>
+                                <i class="fas fa-arrow-right ml-2"></i>
+                            </button>
+                        </form>
+                        <div class="mt-5 flex items-center justify-center">
+                            <i class="fas fa-lock text-gray-400 mr-2"></i>
+                            <p class="text-sm text-gray-600">No credit card required. Privacy guaranteed.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-16 bg-gray-900 text-white">
+        <div class="container mx-auto px-6">
+            <div class="grid md:grid-cols-4 gap-8">
+                <!-- Column 1: Logo & Description -->
+                <div class="col-span-1">
+                    <div class="font-bold text-2xl mb-4 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-600">LearnLens</div>
+                    <p class="text-gray-400 text-sm mb-4">Transforming screen time into meaningful developmental insights for parents and children.</p>
+                    <p class="text-gray-400 text-sm">© 2023 LearnLens. All rights reserved.</p>
+                </div>
+                
+                <!-- Column 2: Quick Links -->
+                <div class="col-span-1">
+                    <h4 class="text-lg font-semibold mb-4 text-white">Quick Links</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#challenge" class="text-gray-400 hover:text-white transition duration-300 text-sm hover:underline flex items-center"><i class="fas fa-chevron-right text-blue-400 mr-2 text-xs"></i>The Challenge</a></li>
+                        <li><a href="#transformation" class="text-gray-400 hover:text-white transition duration-300 text-sm hover:underline flex items-center"><i class="fas fa-chevron-right text-blue-400 mr-2 text-xs"></i>Transformation Stories</a></li>
+                        <li><a href="#solution" class="text-gray-400 hover:text-white transition duration-300 text-sm hover:underline flex items-center"><i class="fas fa-chevron-right text-blue-400 mr-2 text-xs"></i>Our Solution</a></li>
+                        <li><a href="#privacy" class="text-gray-400 hover:text-white transition duration-300 text-sm hover:underline flex items-center"><i class="fas fa-chevron-right text-blue-400 mr-2 text-xs"></i>Privacy</a></li>
+                        <li><a href="#testimonials" class="text-gray-400 hover:text-white transition duration-300 text-sm hover:underline flex items-center"><i class="fas fa-chevron-right text-blue-400 mr-2 text-xs"></i>Parent Stories</a></li>
+                    </ul>
+                </div>
+                
+                <!-- Column 3: Legal -->
+                <div class="col-span-1">
+                    <h4 class="text-lg font-semibold mb-4 text-white">Legal</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white transition duration-300 text-sm hover:underline">Privacy Policy</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition duration-300 text-sm hover:underline">Terms of Service</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition duration-300 text-sm hover:underline">GDPR Compliance</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition duration-300 text-sm hover:underline">Cookie Policy</a></li>
+                    </ul>
+                </div>
+                
+                <!-- Column 4: Get In Touch -->
+                <div class="col-span-1">
+                    <h4 class="text-lg font-semibold mb-4 text-white">Get In Touch</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white transition duration-300 text-sm hover:underline flex items-center"><i class="fas fa-envelope text-blue-400 mr-2"></i>hello@learnlens.com</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition duration-300 text-sm hover:underline flex items-center"><i class="fas fa-headset text-blue-400 mr-2"></i>Support Center</a></li>
+                    </ul>
+                    
+                    <h4 class="text-lg font-semibold mt-6 mb-4 text-white">Follow Us</h4>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-white transition duration-300 text-xl hover:scale-110 transform"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white transition duration-300 text-xl hover:scale-110 transform"><i class="fab fa-facebook"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white transition duration-300 text-xl hover:scale-110 transform"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white transition duration-300 text-xl hover:scale-110 transform"><i class="fab fa-linkedin"></i></a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Final CTA -->
+            <div class="mt-12 pt-8 border-t border-gray-800 text-center">
+                <p class="text-gray-400 mb-6">Ready to transform your child's screen time into developmental opportunities?</p>
+                <a href="#early-access" class="btn-primary text-white font-semibold px-8 py-3 rounded-full inline-block hover:shadow-lg transition duration-300">
+                    Get Started For Free
+                </a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Animation and Interaction Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize ScrollReveal for fade-in animations
+            const sr = ScrollReveal({
+                origin: 'bottom',
+                distance: '30px',
+                duration: 1000,
+                delay: 200,
+                easing: 'ease-in-out'
+            });
+            
+            // Apply to elements with reveal class
+            sr.reveal('.reveal', { interval: 100 });
+            
+            // Different reveal directions for specific elements
+            sr.reveal('.reveal-left', { 
+                origin: 'left',
+                distance: '60px',
+                interval: 100 
+            });
+            
+            sr.reveal('.reveal-right', { 
+                origin: 'right', 
+                distance: '60px',
+                interval: 100 
+            });
+            
+            // Highlight nav items based on scroll position
+            const sections = document.querySelectorAll('section[id]');
+            const navLinks = document.querySelectorAll('nav a[href^="#"]');
+            
+            window.addEventListener('scroll', function() {
+                let current = '';
+                const offset = 150;
+                
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop - offset;
+                    const sectionHeight = section.offsetHeight;
+                    
+                    if (window.scrollY >= sectionTop && window.scrollY < sectionTop + sectionHeight) {
+                        current = section.getAttribute('id');
+                    }
+                });
+                
+                navLinks.forEach(link => {
+                    link.classList.remove('text-blue-600', 'bg-blue-50');
+                    
+                    if (link.getAttribute('href').substring(1) === current) {
+                        link.classList.add('text-blue-600', 'bg-blue-50');
+                    }
+                });
+            });
+            
+            // Animated counter for premium spots counter
+            const premiumCounters = document.querySelectorAll('.animate-pulse');
+            
+            // Make nav transparent on top and opaque when scrolled
+            const nav = document.querySelector('nav');
+            
+            window.addEventListener('scroll', function() {
+                if (window.scrollY > 10) {
+                    nav.classList.add('bg-white');
+                    nav.classList.remove('bg-transparent');
+                } else {
+                    nav.classList.remove('bg-white');
+                    nav.classList.add('bg-transparent');
+                }
+            });
+            
+            // Initialize on page load
+            if (window.scrollY > 10) {
+                nav.classList.add('bg-white');
+            } else {
+                nav.classList.add('bg-transparent');
+            }
+            
+            // Initialize Charts
+            initializeCharts();
+        });
+        
+        function initializeCharts() {
+            // Learning Potential Chart
+            const learningCtx = document.getElementById('learningChart').getContext('2d');
+            const learningChart = new Chart(learningCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Gaming', 'Social Media', 'YouTube', 'Mobile Apps', 'Web Browsing'],
+                    datasets: [
+                        {
+                            label: 'Parent Perception',
+                            data: [25, 20, 35, 30, 45],
+                            backgroundColor: 'rgba(156, 163, 175, 0.5)',
+                            borderColor: 'rgba(156, 163, 175, 1)',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Actual Learning Value',
+                            data: [65, 55, 80, 60, 75],
+                            backgroundColor: 'rgba(79, 70, 229, 0.5)',
+                            borderColor: 'rgba(79, 70, 229, 1)',
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + context.raw + '% learning value';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            title: {
+                                display: true,
+                                text: 'Learning Value (%)'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Digital Activity Type'
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Interest Discovery Chart
+            const discoveryCtx = document.getElementById('discoveryChart').getContext('2d');
+            const discoveryChart = new Chart(discoveryCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5', 'Week 6', 'Week 7', 'Week 8'],
+                    datasets: [
+                        {
+                            label: 'Traditional Monitoring',
+                            data: [1, 1, 2, 2, 3, 3, 4, 4],
+                            backgroundColor: 'rgba(156, 163, 175, 0.2)',
+                            borderColor: 'rgba(156, 163, 175, 1)',
+                            borderWidth: 2,
+                            tension: 0.3,
+                            fill: true
+                        },
+                        {
+                            label: 'With LearnLens',
+                            data: [2, 4, 7, 9, 11, 13, 15, 17],
+                            backgroundColor: 'rgba(79, 70, 229, 0.2)',
+                            borderColor: 'rgba(79, 70, 229, 1)',
+                            borderWidth: 2,
+                            tension: 0.3,
+                            fill: true
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + context.raw + ' interests discovered';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Cumulative Interests Discovered'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Time Period'
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Activity Distribution Chart (for the data-focused example)
+            const activityCtx = document.getElementById('activityDistributionChart');
+            if (activityCtx) {
+                const activityChart = new Chart(activityCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: [
+                            'Engineering & Building (42%)',
+                            'Science Exploration (28%)',
+                            'Math Problem Solving (15%)',
+                            'Creative Arts (10%)',
+                            'Other Activities (5%)'
+                        ],
+                        datasets: [{
+                            data: [42, 28, 15, 10, 5],
+                            backgroundColor: [
+                                'rgba(79, 70, 229, 0.8)',  // Indigo
+                                'rgba(16, 185, 129, 0.8)', // Green
+                                'rgba(245, 158, 11, 0.8)', // Amber
+                                'rgba(239, 68, 68, 0.8)',  // Red
+                                'rgba(107, 114, 128, 0.8)' // Gray
+                            ],
+                            borderColor: [
+                                'rgb(79, 70, 229)',
+                                'rgb(16, 185, 129)',
+                                'rgb(245, 158, 11)',
+                                'rgb(239, 68, 68)',
+                                'rgb(107, 114, 128)'
+                            ],
+                            borderWidth: 1,
+                            hoverOffset: 15
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'right',
+                                labels: {
+                                    font: {
+                                        size: 11
+                                    },
+                                    boxWidth: 15
+                                }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return context.label;
+                                    }
+                                }
+                            }
+                        },
+                        cutout: '60%'
+                    }
+                });
+            }
+            
+            // Add animation to data stats
+            animateDataStats();
+        }
+        
+        function animateDataStats() {
+            const stats = document.querySelectorAll('.bg-blue-50, .bg-green-50, .bg-purple-50, .bg-yellow-50');
+            
+            stats.forEach(stat => {
+                sr.reveal(stat, { 
+                    interval: 200,
+                    distance: '20px',
+                    origin: 'bottom',
+                    delay: 200
+                });
+            });
+        }
+    </script>
+</body>
+</html> 
