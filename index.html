@@ -613,6 +613,32 @@
             
             // Initialize Charts
             initializeCharts();
+            
+            // Test button for API connectivity
+            const testFunctionBtn = document.getElementById('testFunctionBtn');
+            const testResult = document.getElementById('testResult');
+            
+            if (testFunctionBtn) {
+                testFunctionBtn.addEventListener('click', function() {
+                    testResult.textContent = "Testing connection...";
+                    testResult.className = "mt-2 text-xs text-blue-600";
+                    
+                    fetch("https://brave-desert-0030a4410.6.azurestaticapps.net/api/test")
+                        .then(response => {
+                            testResult.textContent = "Response status: " + response.status;
+                            return response.json();
+                        })
+                        .then(data => {
+                            testResult.textContent = "Success! " + data.message;
+                            testResult.className = "mt-2 text-xs text-green-600";
+                        })
+                        .catch(error => {
+                            testResult.textContent = "Error: " + error.message;
+                            testResult.className = "mt-2 text-xs text-red-600";
+                            console.error("Test function error:", error);
+                        });
+                });
+            }
         });
         
         function initializeCharts() {
@@ -1918,6 +1944,12 @@
                         <div class="mt-5 flex items-center justify-center">
                             <i class="fas fa-lock text-gray-400 mr-2"></i>
                             <p class="text-sm text-gray-600">No credit card required. Privacy guaranteed.</p>
+                        </div>
+                        
+                        <!-- Test Button (for debugging) -->
+                        <div class="mt-3 border-t pt-3">
+                            <button id="testFunctionBtn" class="text-sm text-blue-600 underline">Test API Connection</button>
+                            <div id="testResult" class="mt-2 text-xs"></div>
                         </div>
                     </div>
                 </div>
