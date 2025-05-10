@@ -512,8 +512,14 @@
             const formSuccess = document.getElementById('formSuccess');
             
             if (waitlistForm) {
-                waitlistForm.addEventListener('submit', function(e) {
+                // Remove any existing listeners
+                const newForm = waitlistForm.cloneNode(true);
+                waitlistForm.parentNode.replaceChild(newForm, waitlistForm);
+                
+                // Attach new event listener
+                newForm.addEventListener('submit', function(e) {
                     e.preventDefault();
+                    console.log('Form submission intercepted');
                     
                     // Get form data
                     const name = document.getElementById('name').value;
@@ -528,16 +534,15 @@
                     };
                     
                     // Show loading state
-                    const submitButton = waitlistForm.querySelector('button[type="submit"]');
+                    const submitButton = newForm.querySelector('button[type="submit"]');
                     const originalButtonText = submitButton.innerHTML;
                     submitButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Processing...';
                     submitButton.disabled = true;
                     
-                    // This URL points to your Azure Function endpoint
-                    const azureFunctionUrl = "https://brave-desert-0030a4410.6.azurestaticapps.net/api/waitlist-signup";
+                    console.log('Submitting to actual Azure Function URL');
                     
-                    // Send data to Azure Function
-                    fetch(azureFunctionUrl, {
+                    // Hard-coded Azure Function URL - this is the working one
+                    fetch('https://brave-desert-0030a4410.6.azurestaticapps.net/api/waitlist-signup', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
@@ -559,14 +564,11 @@
                     .then(data => {
                         console.log('Success response:', data);
                         // Hide form and show success message
-                        waitlistForm.style.display = 'none';
+                        newForm.style.display = 'none';
                         formSuccess.classList.remove('hidden');
                         
                         // Scroll to success message
                         formSuccess.scrollIntoView({ behavior: 'smooth' });
-                        
-                        // Clear form
-                        waitlistForm.reset();
                     })
                     .catch(error => {
                         console.error('Error details:', error);
@@ -1981,7 +1983,7 @@
                     <div class="bg-white rounded-2xl shadow-xl p-8">
                         <h3 class="text-2xl font-bold mb-4 text-gray-800">Join the Early Access Waitlist</h3>
                         <p class="text-gray-600 mb-6">Get first access to transform screen time data into meaningful insights about your child's digital life.</p>
-                        <form id="waitlistForm" class="space-y-5">
+                        <form id="waitlistForm" class="space-y-5" onsubmit="return false;">
                             <div>
                                 <label for="name" class="block text-sm font-medium text-gray-700 text-left mb-1">Full Name</label>
                                 <input type="text" id="name" name="name" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3 border text-gray-800" placeholder="Your Name" required>
