@@ -508,68 +508,41 @@
             });
             
             // Form submission handling
-            const waitlistForm = document.getElementById('waitlistForm');
+            const earlyAccessForm = document.querySelector('form[action^="https://formspree.io"]');
             const formSuccess = document.getElementById('formSuccess');
             
-            if (waitlistForm) {
-                waitlistForm.addEventListener('submit', function(e) {
+            if (earlyAccessForm) {
+                earlyAccessForm.addEventListener('submit', function(e) {
                     e.preventDefault();
                     
-                    // Get form data
-                    const name = document.getElementById('name').value;
-                    const email = document.getElementById('email').value;
-                    const children = document.getElementById('children').value;
+                    const formData = new FormData(earlyAccessForm);
                     
-                    // Prepare data for Azure Function
-                    const formData = {
-                        name: name,
-                        email: email,
-                        children: children
-                    };
-                    
-                    // Show loading state
-                    const submitButton = waitlistForm.querySelector('button[type="submit"]');
-                    const originalButtonText = submitButton.innerHTML;
-                    submitButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Processing...';
-                    submitButton.disabled = true;
-                    
-                    // This URL will be replaced with your Azure Function URL once it's deployed
-                    const azureFunctionUrl = "https://REPLACE-WITH-YOUR-AZURE-FUNCTION-URL";
-                    
-                    // Send data to Azure Function
-                    fetch(azureFunctionUrl, {
+                    fetch(earlyAccessForm.action, {
                         method: 'POST',
+                        body: formData,
                         headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify(formData)
+                            'Accept': 'application/json'
+                        }
                     })
                     .then(response => {
                         if (response.ok) {
-                            return response.json();
+                            // Hide form and show success message
+                            earlyAccessForm.style.display = 'none';
+                            formSuccess.classList.remove('hidden');
+                            
+                            // Scroll to success message
+                            formSuccess.scrollIntoView({ behavior: 'smooth' });
+                            
+                            // Clear form
+                            earlyAccessForm.reset();
                         } else {
                             throw new Error('Form submission failed');
                         }
                     })
-                    .then(data => {
-                        // Hide form and show success message
-                        waitlistForm.style.display = 'none';
-                        formSuccess.classList.remove('hidden');
-                        
-                        // Scroll to success message
-                        formSuccess.scrollIntoView({ behavior: 'smooth' });
-                        
-                        // Clear form
-                        waitlistForm.reset();
-                    })
                     .catch(error => {
                         console.error('Error:', error);
-                        // Reset button
-                        submitButton.innerHTML = originalButtonText;
-                        submitButton.disabled = false;
-                        
-                        // Show error message
-                        alert('There was an error submitting the form. Please try again.');
+                        // If there's an error, continue with normal form submission
+                        earlyAccessForm.submit();
                     });
                 });
             }
@@ -1880,7 +1853,7 @@
                     <div class="bg-white rounded-2xl shadow-xl p-8">
                         <h3 class="text-2xl font-bold mb-4 text-gray-800">Join the Early Access Waitlist</h3>
                         <p class="text-gray-600 mb-6">Get first access to transform screen time data into meaningful insights about your child's digital life.</p>
-                        <form id="waitlistForm" class="space-y-5">
+                        <form action="https://formspree.io/f/myzwpqda" method="POST" class="space-y-5">
                             <div>
                                 <label for="name" class="block text-sm font-medium text-gray-700 text-left mb-1">Full Name</label>
                                 <input type="text" id="name" name="name" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3 border text-gray-800" placeholder="Your Name" required>
@@ -1893,6 +1866,8 @@
                                 <label for="children" class="block text-sm font-medium text-gray-700 text-left mb-1">Children's Ages (optional)</label>
                                 <input type="text" id="children" name="children" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3 border text-gray-800" placeholder="e.g., 7, 10, 13">
                             </div>
+                            <input type="hidden" name="_subject" value="New LearnLens Early Access Sign-up!">
+                            <input type="hidden" name="_next" value="https://learnlens.com/thank-you">
                             <button type="submit" class="w-full btn-primary text-white font-semibold px-6 py-4 rounded-lg text-lg hover:shadow-xl transition duration-300 transform hover:-translate-y-1 flex items-center justify-center">
                                 <span>Secure Your Free Premium Access</span>
                                 <i class="fas fa-arrow-right ml-2"></i>
