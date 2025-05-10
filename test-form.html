@@ -8,6 +8,8 @@
         input { width: 100%; padding: 8px; margin-top: 5px; }
         button { margin-top: 20px; padding: 10px 15px; background-color: #4D62E5; color: white; border: none; cursor: pointer; }
         #result { margin-top: 20px; padding: 10px; border: 1px solid #ccc; display: none; }
+        .spinner { display: inline-block; width: 15px; height: 15px; border: 3px solid rgba(255,255,255,.3); border-radius: 50%; border-top-color: white; animation: spin 1s ease-in-out infinite; margin-right: 10px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
@@ -24,7 +26,7 @@
         <label for="children">Children's Ages:</label>
         <input type="text" id="children" name="children">
         
-        <button type="submit">Submit Form</button>
+        <button type="submit" id="submitBtn">Submit Form</button>
     </form>
     
     <div id="result"></div>
@@ -47,6 +49,17 @@
             resultDiv.style.display = 'block';
             resultDiv.innerHTML = 'Submitting...';
             
+            // Show loading state on button
+            const submitBtn = document.getElementById('submitBtn');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<span class="spinner"></span>Processing...';
+            submitBtn.disabled = true;
+            
+            // Set a timeout to show a message if the request takes too long
+            const timeoutId = setTimeout(() => {
+                resultDiv.innerHTML = 'Taking longer than expected... Azure Functions sometimes have cold starts which can take 15-30 seconds on initial requests.';
+            }, 3000);
+            
             // Use the correct Azure Function URL
             fetch('https://brave-desert-0030a4410.6.azurestaticapps.net/api/waitlist-signup', {
                 method: 'POST',
@@ -56,17 +69,22 @@
                 body: JSON.stringify(formData)
             })
             .then(response => {
-                resultDiv.innerHTML += '<br>Response status: ' + response.status;
+                clearTimeout(timeoutId);
+                resultDiv.innerHTML = 'Response status: ' + response.status;
                 return response.json();
             })
             .then(data => {
                 resultDiv.innerHTML += '<br>Success! ' + data.message;
                 resultDiv.style.backgroundColor = '#e6ffe6';
+                submitBtn.innerHTML = 'Submitted ✓';
             })
             .catch(error => {
+                clearTimeout(timeoutId);
                 resultDiv.innerHTML += '<br>Error: ' + error.message;
                 resultDiv.style.backgroundColor = '#ffe6e6';
                 console.error('Error:', error);
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
             });
         });
     </script>
