@@ -18,7 +18,7 @@
       "direction": "out",
       "name": "outputTable",
       "tableName": "waitlist",
-      "connection": "AzureWebJobsStorage"
+      "connection": "STORAGE_CONN"
     }
   ]
 } 

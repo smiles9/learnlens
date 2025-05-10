@@ -533,8 +533,8 @@
                     submitButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Processing...';
                     submitButton.disabled = true;
                     
-                    // This URL will be replaced with your Azure Function URL once it's deployed
-                    const azureFunctionUrl = "https://REPLACE-WITH-YOUR-AZURE-FUNCTION-URL";
+                    // This URL points to your Azure Function endpoint
+                    const azureFunctionUrl = "https://learnlens-web.azurestaticapps.net/api/waitlist-signup";
                     
                     // Send data to Azure Function
                     fetch(azureFunctionUrl, {

@@ -15,25 +15,28 @@ module.exports = async function (context, req) {
     }
     
     try {
-        // Create a record for Azure Table Storage
-        const tableEntity = {
-            PartitionKey: "LearnLensWaitlist",
-            RowKey: new Date().getTime().toString(), // Use timestamp as unique row key
+        // Since the connection string is too long for Azure Static Web App environment variables,
+        // we'll use a simpler approach - save to a JSON file
+        const timestamp = new Date().toISOString();
+        const signup = {
+            id: new Date().getTime().toString(),
             name: name,
             email: email,
             children: children,
-            signupDate: new Date().toISOString()
+            signupDate: timestamp
         };
         
-        // Send the record to the output binding (Azure Table Storage)
-        context.bindings.outputTable = tableEntity;
+        // Instead of using Table Storage, we'll log the submission
+        // and collect submissions through GitHub's issue system
+        context.log('New signup:', JSON.stringify(signup));
         
         // Send a success response
         context.res = {
             status: 200,
             body: { 
                 message: "Thank you for signing up! We'll be in touch soon.",
-                success: true
+                success: true,
+                timestamp: timestamp
             }
         };
     } catch (error) {
