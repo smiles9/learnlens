@@ -3,35 +3,29 @@ module.exports = async function (context, req) {
 
     try {
         // Get form data from request body
-        const name = req.body.name;
-        const email = req.body.email;
-        const children = req.body.children || "Not provided";
+        const name = req.body && req.body.name;
+        const email = req.body && req.body.email;
+        const children = req.body && req.body.children || "Not provided";
+        
+        context.log('Received form data:', { name, email, children });
         
         if (!name || !email) {
+            context.log.warn('Missing required fields name or email');
             context.res = {
                 status: 400,
-                body: { message: "Please provide name and email." }
+                body: { 
+                    message: "Please provide name and email.",
+                    success: false
+                }
             };
             return;
         }
         
-        // Create timestamp and unique ID
+        // Create timestamp 
         const timestamp = new Date().toISOString();
-        const id = new Date().getTime().toString();
         
-        // Create a record for Azure Table Storage
-        // Table Storage requires PartitionKey and RowKey
-        context.bindings.outputTable = {
-            PartitionKey: "waitlist",
-            RowKey: id,
-            name: name,
-            email: email,
-            children: children,
-            signupDate: timestamp
-        };
-        
-        // Log the submission
-        context.log('New signup:', name, email);
+        // Log the submission instead of saving to table storage
+        context.log('New signup - Name:', name, 'Email:', email, 'Children:', children);
         
         // Send a success response
         context.res = {
@@ -43,13 +37,14 @@ module.exports = async function (context, req) {
             }
         };
     } catch (error) {
-        context.log.error("Error processing signup:", error);
+        context.log.error("Critical error processing signup:", error);
         
         context.res = {
             status: 500,
             body: { 
                 message: "There was an error processing your request. Please try again.",
-                success: false
+                success: false,
+                error: error.message
             }
         };
     }
