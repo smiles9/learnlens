@@ -1,34 +1,37 @@
 module.exports = async function (context, req) {
     context.log('Processing waitlist signup form submission.');
 
-    // Get form data from request body
-    const name = req.body.name;
-    const email = req.body.email;
-    const children = req.body.children || "Not provided";
-    
-    if (!name || !email) {
-        context.res = {
-            status: 400,
-            body: { message: "Please provide name and email." }
-        };
-        return;
-    }
-    
     try {
-        // Since the connection string is too long for Azure Static Web App environment variables,
-        // we'll use a simpler approach - save to a JSON file
+        // Get form data from request body
+        const name = req.body.name;
+        const email = req.body.email;
+        const children = req.body.children || "Not provided";
+        
+        if (!name || !email) {
+            context.res = {
+                status: 400,
+                body: { message: "Please provide name and email." }
+            };
+            return;
+        }
+        
+        // Create timestamp and unique ID
         const timestamp = new Date().toISOString();
-        const signup = {
-            id: new Date().getTime().toString(),
+        const id = new Date().getTime().toString();
+        
+        // Create a record for Azure Table Storage
+        // Table Storage requires PartitionKey and RowKey
+        context.bindings.outputTable = {
+            PartitionKey: "waitlist",
+            RowKey: id,
             name: name,
             email: email,
             children: children,
             signupDate: timestamp
         };
         
-        // Instead of using Table Storage, we'll log the submission
-        // and collect submissions through GitHub's issue system
-        context.log('New signup:', JSON.stringify(signup));
+        // Log the submission
+        context.log('New signup:', name, email);
         
         // Send a success response
         context.res = {

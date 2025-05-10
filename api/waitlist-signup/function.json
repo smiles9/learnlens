@@ -18,7 +18,7 @@
       "direction": "out",
       "name": "outputTable",
       "tableName": "waitlist",
-      "connection": "STORAGE_CONN"
+      "connection": "learnlensstorage"
     }
   ]
 } 
