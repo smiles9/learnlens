@@ -9,7 +9,7 @@
         "post",
         "options"
       ],
-      "route": "waitlist-signup"
+      "route": "signup"
     },
     {
       "type": "http",
