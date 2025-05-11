@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Simple Admin</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/azure-storage/2.10.3/azure-storage.table.min.js"></script>
+</head>
+<body>
+    <h1>Simple Admin Interface</h1>
+    
+    <div>
+        <label for="accountName">Account Name:</label>
+        <input type="text" id="accountName" value="learnlensstorage">
+    </div>
+    <div>
+        <label for="accountKey">Account Key:</label>
+        <input type="password" id="accountKey" value="">
+    </div>
+    <div>
+        <label for="tableName">Table Name:</label>
+        <input type="text" id="tableName" value="waitlistSignups">
+    </div>
+    <button id="loadButton">Load Data</button>
+    
+    <div id="error" style="color: red; display: none;"></div>
+    <div id="loading" style="display: none;">Loading...</div>
+    
+    <h2>Submissions: <span id="count">0</span></h2>
+    <table border="1" id="dataTable" style="display: none;">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Children</th>
+                <th>Date</th>
+            </tr>
+        </thead>
+        <tbody id="dataBody"></tbody>
+    </table>
+    
+    <script>
+        document.getElementById('loadButton').addEventListener('click', function() {
+            const accountName = document.getElementById('accountName').value;
+            const accountKey = document.getElementById('accountKey').value;
+            const tableName = document.getElementById('tableName').value;
+            
+            if (!accountName || !accountKey || !tableName) {
+                showError('Please fill in all fields');
+                return;
+            }
+            
+            // Store key for convenience
+            localStorage.setItem('admin_key', accountKey);
+            
+            // Update UI
+            document.getElementById('error').style.display = 'none';
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('dataTable').style.display = 'none';
+            
+            try {
+                const tableService = AzureStorage.createTableService(accountName, accountKey);
+                const query = new AzureStorage.TableQuery().where('PartitionKey eq ?', 'WaitlistSignup');
+                
+                tableService.queryEntities(tableName, query, null, function(error, result) {
+                    document.getElementById('loading').style.display = 'none';
+                    
+                    if (error) {
+                        showError('Error: ' + error.message);
+                        return;
+                    }
+                    
+                    const entities = result.entries;
+                    document.getElementById('count').textContent = entities.length;
+                    
+                    // Clear table
+                    const tbody = document.getElementById('dataBody');
+                    tbody.innerHTML = '';
+                    
+                    // Add rows
+                    entities.forEach(function(entity) {
+                        const row = document.createElement('tr');
+                        
+                        const nameCell = document.createElement('td');
+                        nameCell.textContent = entity.name ? entity.name._ : '';
+                        row.appendChild(nameCell);
+                        
+                        const emailCell = document.createElement('td');
+                        emailCell.textContent = entity.email ? entity.email._ : '';
+                        row.appendChild(emailCell);
+                        
+                        const childrenCell = document.createElement('td');
+                        childrenCell.textContent = entity.childrenAges ? entity.childrenAges._ : '';
+                        row.appendChild(childrenCell);
+                        
+                        const dateCell = document.createElement('td');
+                        const timestamp = entity.Timestamp ? new Date(entity.Timestamp._) : new Date();
+                        dateCell.textContent = timestamp.toLocaleString();
+                        row.appendChild(dateCell);
+                        
+                        tbody.appendChild(row);
+                    });
+                    
+                    document.getElementById('dataTable').style.display = 'table';
+                });
+            } catch (error) {
+                document.getElementById('loading').style.display = 'none';
+                showError('Error: ' + error.message);
+            }
+        });
+        
+        function showError(message) {
+            const errorDiv = document.getElementById('error');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+        
+        // Load saved key if available
+        const savedKey = localStorage.getItem('admin_key');
+        if (savedKey) {
+            document.getElementById('accountKey').value = savedKey;
+        }
+    </script>
+</body>
+</html> 

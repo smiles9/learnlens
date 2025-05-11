@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LearnLens Admin Direct</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/azure-storage/2.10.3/azure-storage.table.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            border-radius: 8px;
+        }
+        h1 {
+            color: #4D62E5;
+            text-align: center;
+        }
+        .auth-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #f0f4ff;
+            border-radius: 8px;
+        }
+        input {
+            padding: 10px;
+            width: 100%;
+            box-sizing: border-box;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #4D62E5;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #3c4fb3;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f5f5f5;
+            font-weight: bold;
+        }
+        tr:hover {
+            background-color: #f9f9f9;
+        }
+        .loading {
+            text-align: center;
+            padding: 20px;
+            font-style: italic;
+            color: #666;
+        }
+        .error {
+            background-color: #ffe6e6;
+            color: #d32f2f;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>LearnLens Direct Admin</h1>
+        
+        <div class="auth-section">
+            <h2>Azure Storage Credentials</h2>
+            <div>
+                <label for="accountName">Account Name:</label>
+                <input type="text" id="accountName" value="learnlensstorage">
+            </div>
+            <div>
+                <label for="accountKey">Account Key:</label>
+                <input type="password" id="accountKey" value="">
+                <small>This value is never sent to any server - it's used only in your browser to connect directly to Azure.</small>
+            </div>
+            <div>
+                <label for="tableName">Table Name:</label>
+                <input type="text" id="tableName" value="waitlistSignups">
+            </div>
+            <button id="loadButton">Load Submissions</button>
+        </div>
+        
+        <div id="errorContainer" class="error" style="display: none;"></div>
+        
+        <div id="loadingIndicator" class="loading" style="display: none;">
+            Loading submissions...
+        </div>
+        
+        <div id="resultsContainer" style="display: none;">
+            <h2>Submissions (<span id="submissionCount">0</span>)</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Children's Ages</th>
+                        <th>Submission Date</th>
+                    </tr>
+                </thead>
+                <tbody id="submissionsTable">
+                    <!-- Data will be inserted here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const accountNameInput = document.getElementById('accountName');
+            const accountKeyInput = document.getElementById('accountKey');
+            const tableNameInput = document.getElementById('tableName');
+            const loadButton = document.getElementById('loadButton');
+            const errorContainer = document.getElementById('errorContainer');
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            const resultsContainer = document.getElementById('resultsContainer');
+            const submissionsTable = document.getElementById('submissionsTable');
+            const submissionCount = document.getElementById('submissionCount');
+            
+            // Prefill the account key from localStorage if available
+            const savedKey = localStorage.getItem('learnlens_admin_storage_key');
+            if (savedKey) {
+                accountKeyInput.value = savedKey;
+            }
+            
+            loadButton.addEventListener('click', function() {
+                const accountName = accountNameInput.value.trim();
+                const accountKey = accountKeyInput.value.trim();
+                const tableName = tableNameInput.value.trim();
+                
+                if (!accountName || !accountKey || !tableName) {
+                    showError('Please fill in all fields');
+                    return;
+                }
+                
+                // Save key to localStorage for convenience
+                localStorage.setItem('learnlens_admin_storage_key', accountKey);
+                
+                // Reset UI
+                errorContainer.style.display = 'none';
+                loadingIndicator.style.display = 'block';
+                resultsContainer.style.display = 'none';
+                
+                try {
+                    // Create table service
+                    const tableService = AzureStorage.createTableService(accountName, accountKey);
+                    
+                    // Query table
+                    const query = new AzureStorage.TableQuery()
+                        .where('PartitionKey eq ?', 'WaitlistSignup');
+                    
+                    tableService.queryEntities(tableName, query, null, function(error, result, response) {
+                        loadingIndicator.style.display = 'none';
+                        
+                        if (error) {
+                            showError('Error querying table: ' + error.message);
+                            return;
+                        }
+                        
+                        // Process results
+                        const entities = result.entries;
+                        const count = entities.length;
+                        
+                        submissionCount.textContent = count;
+                        submissionsTable.innerHTML = '';
+                        
+                        if (count === 0) {
+                            const noDataRow = document.createElement('tr');
+                            noDataRow.innerHTML = '<td colspan="4" style="text-align: center;">No submissions found</td>';
+                            submissionsTable.appendChild(noDataRow);
+                        } else {
+                            // Sort by timestamp (newest first)
+                            const sortedEntities = [...entities].sort((a, b) => {
+                                const dateA = new Date(a.Timestamp._);
+                                const dateB = new Date(b.Timestamp._);
+                                return dateB - dateA;
+                            });
+                            
+                            sortedEntities.forEach(entity => {
+                                const row = document.createElement('tr');
+                                
+                                // Format date
+                                const timestamp = new Date(entity.Timestamp._);
+                                const formattedDate = timestamp.toLocaleDateString() + ' ' + 
+                                                     timestamp.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                                
+                                row.innerHTML = `
+                                    <td>${escapeHtml(entity.name ? entity.name._ : '')}</td>
+                                    <td>${escapeHtml(entity.email ? entity.email._ : '')}</td>
+                                    <td>${escapeHtml(entity.childrenAges ? entity.childrenAges._ : '')}</td>
+                                    <td>${formattedDate}</td>
+                                `;
+                                
+                                submissionsTable.appendChild(row);
+                            });
+                        }
+                        
+                        resultsContainer.style.display = 'block';
+                    });
+                } catch (error) {
+                    loadingIndicator.style.display = 'none';
+                    showError('Error connecting to Azure: ' + error.message);
+                }
+            });
+            
+            function showError(message) {
+                errorContainer.textContent = message;
+                errorContainer.style.display = 'block';
+            }
+            
+            function escapeHtml(str) {
+                if (!str) return '';
+                return str
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;')
+                    .replace(/'/g, '&#039;');
+            }
+            
+            // Auto load if key is saved
+            if (savedKey) {
+                loadButton.click();
+            }
+        });
+    </script>
+</body>
+</html> 
