@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src https: 'unsafe-eval' 'unsafe-inline'; img-src https: data: *;">
+    <title>LearnLens | Join Waitlist</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f4f8;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 600px;
+            width: 90%;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            text-align: center;
+        }
+        
+        h1 {
+            color: #4D62E5;
+            margin-bottom: 10px;
+        }
+        
+        p {
+            color: #666;
+            margin-bottom: 30px;
+        }
+        
+        form {
+            text-align: left;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #444;
+        }
+        
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        
+        button {
+            background: linear-gradient(90deg, #4D62E5 0%, #87BBFD 100%);
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            width: 100%;
+            margin-top: 10px;
+        }
+        
+        button:hover {
+            opacity: 0.9;
+        }
+        
+        .logo {
+            margin-bottom: 20px;
+        }
+        
+        .back-link {
+            display: block;
+            margin-top: 30px;
+            color: #4D62E5;
+            text-decoration: none;
+        }
+        
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            <h1>LearnLens</h1>
+            <p>Understand What Your Child is Learning Online</p>
+        </div>
+        
+        <h2>Join Our Waitlist</h2>
+        <p>Get early access to transform screen time data into meaningful insights about your child's digital life.</p>
+        
+        <!-- Form for Azure Function -->
+        <form id="signupForm">
+            <div class="form-group">
+                <label for="name">Full Name</label>
+                <input type="text" id="name" name="name" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="children">Children's Ages (optional)</label>
+                <input type="text" id="children" name="children" placeholder="e.g., 7, 10, 13">
+            </div>
+            
+            <button type="submit">Join the Waitlist</button>
+        </form>
+        
+        <div id="formSuccess" style="display: none; text-align: center; background-color: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; padding: 15px; border-radius: 5px; margin-top: 20px;">
+            <h3 style="margin-bottom: 10px; font-weight: bold;">Thank you for joining!</h3>
+            <p>We've received your information and will be in touch soon.</p>
+        </div>
+        
+        <div id="formError" style="display: none; text-align: center; background-color: #fef2f2; border: 1px solid #fecaca; color: #b91c1c; padding: 15px; border-radius: 5px; margin-top: 20px;">
+            <h3 style="margin-bottom: 10px; font-weight: bold;">Something went wrong</h3>
+            <p>Please try again later.</p>
+        </div>
+        
+        <a href="/" class="back-link">← Back to Homepage</a>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const form = document.getElementById('signupForm');
+                const formSuccess = document.getElementById('formSuccess');
+                const formError = document.getElementById('formError');
+                
+                if (form) {
+                    form.addEventListener('submit', function(e) {
+                        e.preventDefault();
+                        
+                        // Show loading state
+                        const submitButton = form.querySelector('button[type="submit"]');
+                        const originalButtonText = submitButton.textContent;
+                        submitButton.textContent = 'Submitting...';
+                        submitButton.disabled = true;
+                        
+                        // Get form data
+                        const formData = new FormData(form);
+                        const formJson = {};
+                        formData.forEach((value, key) => {
+                            formJson[key] = value;
+                        });
+                        
+                        // Add debugging logs
+                        console.log('Form submission intercepted');
+                        console.log('Submitting to Azure Function', formJson);
+                        
+                        // Submit to Azure function
+                        fetch('/api/waitlist-signup', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify(formJson)
+                        })
+                        .then(response => {
+                            console.log('Response status:', response.status);
+                            return response.json();
+                        })
+                        .then(data => {
+                            console.log('Response data:', data);
+                            if (data.success) {
+                                // Hide form and show success message
+                                form.style.display = 'none';
+                                formSuccess.style.display = 'block';
+                                formError.style.display = 'none';
+                                
+                                // Clear form
+                                form.reset();
+                            } else {
+                                throw new Error(data.message || 'Form submission failed');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            
+                            // Show error message
+                            formError.style.display = 'block';
+                            formSuccess.style.display = 'none';
+                            
+                            // Reset button
+                            submitButton.textContent = originalButtonText;
+                            submitButton.disabled = false;
+                        });
+                    });
+                }
+            });
+        </script>
+    </div>
+</body>
+</html> 
