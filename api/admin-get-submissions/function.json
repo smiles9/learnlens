@@ -1,15 +1,14 @@
 {
   "bindings": [
     {
-      "authLevel": "anonymous",
+      "authLevel": "function",
       "type": "httpTrigger",
       "direction": "in",
       "name": "req",
       "methods": [
-        "post",
-        "options"
+        "get"
       ],
-      "route": "signup"
+      "route": "admin/submissions"
     },
     {
       "type": "http",
@@ -18,10 +17,11 @@
     },
     {
       "type": "table",
-      "direction": "out",
+      "direction": "in",
       "name": "waitlistTable",
       "tableName": "waitlistSignups",
-      "connection": "learnlensstorage"
+      "connection": "learnlensstorage",
+      "partitionKey": "WaitlistSignup"
     }
   ]
 } 
