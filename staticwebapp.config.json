@@ -1,24 +1,35 @@
 {
   "routes": [
     {
-      "route": "/",
-      "serve": "/index.html",
+      "route": "/direct-admin.html",
+      "serve": "/direct-admin.html",
       "statusCode": 200
     },
     {
-      "route": "/thank-you",
-      "serve": "/index.html",
+      "route": "/debug-form.html",
+      "serve": "/debug-form.html",
       "statusCode": 200
     },
     {
-      "route": "/api/*",
-      "methods": ["POST"],
-      "allowedRoles": ["anonymous"]
+      "route": "/api-test.html",
+      "serve": "/api-test.html",
+      "statusCode": 200
+    },
+    {
+      "route": "/admin/*",
+      "serve": "/admin/index.html",
+      "statusCode": 200
     }
   ],
   "navigationFallback": {
-    "rewrite": "index.html",
-    "exclude": ["/images/*.{png,jpg,gif}", "/css/*", "/js/*"]
+    "rewrite": "/index.html",
+    "exclude": [
+      "/images/*.{png,jpg,gif}",
+      "/css/*",
+      "/js/*",
+      "/*.html",
+      "/api/*"
+    ]
   },
   "responseOverrides": {
     "404": {
@@ -27,9 +38,11 @@
     }
   },
   "globalHeaders": {
-    "content-security-policy": "default-src https: 'unsafe-eval' 'unsafe-inline'; object-src 'none'",
-    "cache-control": "must-revalidate, max-age=86400",
-    "X-Frame-Options": "SAMEORIGIN",
-    "X-XSS-Protection": "1; mode=block"
+    "content-security-policy": "default-src https: 'unsafe-eval' 'unsafe-inline'; object-src 'none'"
+  },
+  "mimeTypes": {
+    ".html": "text/html",
+    ".json": "application/json",
+    ".js": "text/javascript"
   }
 } 
